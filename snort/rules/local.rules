@@ -1,0 +1,17 @@
+  alert tcp any any -> any 3000 (msg:"TEST DOCKER DETECT"; sid:5555555; rev:1;)
+  
+  alert tcp any any -> any 3000 (msg:"SQLi OR 1=1 DETECTED"; \
+  flow:to_server,established; \
+  content:"or"; nocase; http_client_body; \
+  content:"1=1"; nocase; http_client_body; \
+  sid:1000002; rev:2;)
+  
+  alert tcp any any -> any 3000 (msg:"SQLi ENCODED DETECTED"; \
+  flow:to_server,established; \
+  content:"%3D1"; http_client_body; \
+  sid:1000011; rev:1;)
+  
+  alert tcp any any -> any 3000 (msg:"POST BODY DETECTED"; \
+  flow:to_server,established; \
+  content:"username"; http_client_body; \
+  sid:1234568; rev:1;)

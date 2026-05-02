@@ -1,0 +1,146 @@
+/* ===========================
+   RESET & DASAR
+   =========================== */
+body {
+    background: url(pesbuk.png) no-repeat center center fixed; /* gambar latar belakang */
+    background-size: cover; /* pastikan gambar memenuhi seluruh layar */
+    margin: 0; /* hilangkan margin default */
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #edf0f5;
+    box-sizing: border-box;
+}
+
+/* ===========================
+   HEADER (BIRU ATAS)
+   =========================== */
+header {
+    background-color: #3b5998;
+    width: 100%;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* sejajarkan input dan tombol */
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    box-sizing: border-box;
+}
+
+/* Logo kiri */
+.header-left {
+    flex: 1;
+}
+
+/* Form login kanan */
+.header-right form {
+    display: flex;
+    gap: 15px;
+    align-items: center; /* tombol sejajar dengan input */
+}
+
+.header-right .form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.header-right .form-group label {
+    color: white;
+    font-size: 12px;
+    margin-bottom: 3px;
+}
+
+.header-right .form-group input {
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    width: 180px; /* ukuran kecil sesuai header */
+    box-sizing: border-box;
+}
+
+.header-right button {
+    background: #4267b2;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.header-right button:hover {
+    background: #2d4373;
+}
+
+/* ===========================
+   KONTEN UTAMA
+   =========================== */
+.main-container {
+    display: flex;
+    justify-content: left;
+    align-items: flex-start;
+    margin-top: 50px;
+    padding: 0 20px;
+}
+
+.left-section {
+    width: 50%;
+    padding: 20px;
+    font-size: 16px;
+    color: #333;
+}
+
+/* ===========================
+   FORM REGISTRASI
+   =========================== */
+.register-container {
+    padding: 25px;
+    border-radius: 5px;
+    width: 300px;
+    margin-left: auto;
+    margin-right: 150px;
+    margin-top: -60px;
+    text-align: left;
+}
+
+/* Baris nama depan & nama belakang */
+.name-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.name-row input {
+    flex: 1; /* kedua input sama rata */
+    min-width: 0;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* Input umum di register */
+.register-container .form-group input {
+    display: block;
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* Tombol daftar */
+.register-container button {
+    width: 100%;
+    padding: 10px;
+    background: #42b72a; /* hijau khas tombol daftar FB */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.register-container button:hover {
+    background: #36a420;
+}

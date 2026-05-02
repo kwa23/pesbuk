@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facebook - Login atau Daftar</title>
+    <!-- Hubungkan ke file CSS eksternal -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header biru dengan form login -->
+    <header>
+    <div class="header-left">
+        facebook
+    </div>
+    <div class="header-right">
+        <form action="login.php" method="post">
+            <div class="form-group">
+                <label for="username">Email atau Nomor Telepon</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Masuk</button>
+        </form>
+    </div>
+</header>
+
+    <!-- Konten utama -->
+    <div class="main-container">
+        <!-- Bagian kiri: teks deskripsi -->
+        <div class="left-section">
+            <h1>Facebook membantu Anda terhubung dan berbagi dengan orang-orang dalam kehidupan Anda.</h1>
+        </div>
+
+        <!-- Bagian kanan: link daftar -->
+        <div class="register-container">
+            <h2>Buat Akun</h2>
+            <p>Gratis Selamanya. <a href="register.html">Daftar di sini</a></p>
+        </div>
+    </div>
+</body>
+</html>

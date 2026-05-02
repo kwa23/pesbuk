@@ -1,0 +1,57 @@
+services:
+
+  # ========================
+  # Container 1: Web Server + Database
+  # ========================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pesbuk-app
+    volumes:
+      - pesbuk_data:/app/data
+    networks:
+      - pesbuk-network
+
+  # ========================
+  # Container 2: Snort IDS
+  # Monitor traffic di jaringan Docker
+  # ========================
+  snort:
+    build:
+      context: ./snort
+      dockerfile: Dockerfile.snort
+    container_name: pesbuk-snort
+    network_mode: host        # akses langsung ke jaringan host agar bisa monitor traffic
+    cap_add:
+      - NET_ADMIN             # izin monitor jaringan
+      - NET_RAW               # izin baca raw packet
+    volumes:
+      - ./snort/logs:/var/log/snort   # log alert tersimpan di laptop
+    depends_on:
+      - app
+
+  # ========================
+  # Container 3: Nginx (HTTPS + reverse proxy)
+  # ========================
+  nginx:
+    image: nginx:alpine
+    container_name: pesbuk-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./ssl/cert.pem:/etc/ssl/cert.pem
+      - ./ssl/key.pem:/etc/ssl/key.pem
+    depends_on:
+      - app
+    networks:
+      - pesbuk-network
+
+networks:
+  pesbuk-network:
+    driver: bridge
+
+volumes:
+  pesbuk_data:

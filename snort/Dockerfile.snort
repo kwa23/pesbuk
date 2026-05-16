@@ -11,5 +11,6 @@ RUN mkdir -p /var/log/snort
 COPY snort.conf /etc/snort/snort.conf
 COPY rules/local.rules /etc/snort/rules/local.rules
 
-# Gunakan br-7952696ba20b untuk monitor traffic antar container
-CMD ["snort", "-i", "ens33", "-c", "/etc/snort/snort.conf", "-A", "fast", "-l", "/var/log/snort"]
+# Monitor pesbuk-br: bridge Docker dengan nama tetap yang didefinisikan di docker-compose
+# pesbuk-br selalu ada selama docker-compose network pesbuk-network aktif
+CMD ["snort", "-i", "pesbuk-br", "-c", "/etc/snort/snort.conf", "-A", "fast", "-l", "/var/log/snort"]

@@ -15,21 +15,22 @@ services:
 
   # ========================
   # Container 2: Snort IDS
-  # Monitor traffic di jaringan Docker
+  # Pakai network_mode: host agar bisa monitor bridge pesbuk-br dari sisi host
   # ========================
   snort:
     build:
       context: ./snort
       dockerfile: Dockerfile.snort
     container_name: pesbuk-snort
-    network_mode: host        # akses langsung ke jaringan host agar bisa monitor traffic
+    network_mode: host          # akses langsung ke interface host (termasuk pesbuk-br)
     cap_add:
-      - NET_ADMIN             # izin monitor jaringan
-      - NET_RAW               # izin baca raw packet
+      - NET_ADMIN               # izin monitor jaringan
+      - NET_RAW                 # izin baca raw packet
     volumes:
-      - ./snort/logs:/var/log/snort   # log alert tersimpan di laptop
+      - ./snort/logs:/var/log/snort   # log alert tersimpan di host
     depends_on:
       - app
+      - nginx
 
   # ========================
   # Container 3: Nginx (HTTPS + reverse proxy)
@@ -49,9 +50,26 @@ services:
     networks:
       - pesbuk-network
 
+  # ========================
+  # Container 4: User / Attacker
+  # Ubuntu dengan tools serangan: curl, hydra, sqlmap
+  # Cara pakai: docker exec -it pesbuk-user bash
+  # ========================
+  user:
+    build:
+      context: ./user
+      dockerfile: Dockerfile.user
+    container_name: pesbuk-user
+    networks:
+      - pesbuk-network
+    stdin_open: true
+    tty: true
+
 networks:
   pesbuk-network:
     driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: pesbuk-br   # nama bridge TETAP agar Snort bisa monitor
 
 volumes:
   pesbuk_data:

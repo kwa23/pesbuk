@@ -1,17 +1,26 @@
-  alert tcp any any -> any 3000 (msg:"TEST DOCKER DETECT"; sid:5555555; rev:1;)
-  
-  alert tcp any any -> any 3000 (msg:"SQLi OR 1=1 DETECTED"; \
-  flow:to_server,established; \
-  content:"or"; nocase; http_client_body; \
-  content:"1=1"; nocase; http_client_body; \
-  sid:1000002; rev:2;)
-  
-  alert tcp any any -> any 3000 (msg:"SQLi ENCODED DETECTED"; \
-  flow:to_server,established; \
-  content:"%3D1"; http_client_body; \
-  sid:1000011; rev:1;)
-  
-  alert tcp any any -> any 3000 (msg:"POST BODY DETECTED"; \
-  flow:to_server,established; \
-  content:"username"; http_client_body; \
-  sid:1234568; rev:1;)
+# ============================================================
+# LOCAL RULES - PROJECT PESBUK
+# File: /etc/snort/rules/local.rules
+# ============================================================
+
+# Test: deteksi semua koneksi TCP ke port 3000
+alert tcp any any -> any 3000 (msg:"TEST DOCKER DETECT"; sid:5555555; rev:1;)
+
+# SQLi: deteksi pola OR 1=1 di body request
+alert tcp any any -> any 3000 (msg:"SQLi OR 1=1 DETECTED"; \
+flow:to_server,established; \
+content:"or"; nocase; http_client_body; \
+content:"1=1"; nocase; http_client_body; \
+sid:1000002; rev:2;)
+
+# SQLi: deteksi encoding %3D (tanda =) yang biasa dipakai attacker
+alert tcp any any -> any 3000 (msg:"SQLi ENCODED DETECTED"; \
+flow:to_server,established; \
+content:"%3D1"; http_client_body; \
+sid:1000011; rev:1;)
+
+# Deteksi POST login (monitor semua login attempt)
+alert tcp any any -> any 3000 (msg:"POST LOGIN DETECTED"; \
+flow:to_server,established; \
+content:"username"; http_client_body; \
+sid:1234568; rev:1;)

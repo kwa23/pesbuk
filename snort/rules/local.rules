@@ -32,3 +32,37 @@ flow:to_server,established; \
 content:"POST"; \
 content:"/login.php"; \
 sid:1234569; rev:1;)
+
+# ============================================================
+# NMAP SCAN DETECTION
+# Nmap mengirim paket TCP khusus untuk deteksi port terbuka
+# ============================================================
+
+# Nmap SYN Scan (-sS): banyak paket SYN tanpa melengkapi handshake
+# Threshold: alert jika >5 SYN dari sumber yang sama dalam 2 detik
+alert tcp any any -> any any (msg:"NMAP SYN SCAN DETECTED"; \
+flags:S,12; \
+threshold:type threshold, track by_src, count 5, seconds 2; \
+classtype:attempted-recon; \
+sid:2000001; rev:1;)
+
+# Nmap NULL Scan (-sN): paket TCP tanpa flag sama sekali
+# Tujuan: cek respons port — open port biasanya tidak reply
+alert tcp any any -> any any (msg:"NMAP NULL SCAN DETECTED"; \
+flags:0; \
+classtype:attempted-recon; \
+sid:2000002; rev:1;)
+
+# Nmap XMAS Scan (-sX): kirim FIN+PSH+URG sekaligus
+# Nama "christmas tree" karena semua flag menyala seperti lampu natal
+alert tcp any any -> any any (msg:"NMAP XMAS SCAN DETECTED"; \
+flags:FPU,12; \
+classtype:attempted-recon; \
+sid:2000003; rev:1;)
+
+# Nmap FIN Scan (-sF): hanya kirim FIN flag
+# Port tertutup akan balas RST, port terbuka diam saja
+alert tcp any any -> any any (msg:"NMAP FIN SCAN DETECTED"; \
+flags:F,12; \
+classtype:attempted-recon; \
+sid:2000004; rev:1;)

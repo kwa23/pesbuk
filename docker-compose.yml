@@ -7,7 +7,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: pesbuk-app
+    container_name: pesbuk-app_101032330051
     volumes:
       - pesbuk_data:/app/data
     networks:
@@ -21,7 +21,7 @@ services:
     build:
       context: ./snort
       dockerfile: Dockerfile.snort
-    container_name: pesbuk-snort
+    container_name: pesbuk-snort_101032330051
     network_mode: host          # akses langsung ke interface host (termasuk pesbuk-br)
     cap_add:
       - NET_ADMIN               # izin monitor jaringan
@@ -37,7 +37,7 @@ services:
   # ========================
   nginx:
     image: nginx:alpine
-    container_name: pesbuk-nginx
+    container_name: pesbuk-nginx_101032330051
     ports:
       - "80:80"
       - "443:443"
@@ -59,7 +59,7 @@ services:
     build:
       context: ./user
       dockerfile: Dockerfile.user
-    container_name: pesbuk-user
+    container_name: pesbuk-user_101032330051
     networks:
       - pesbuk-network
     stdin_open: true

@@ -8,7 +8,7 @@
 # Contoh    : sudo bash acl/acl-block.sh 172.19.0.3
 # ============================================================
 
-BLOCKED_LOG="$(dirname "$0")/blocked.log"
+BLOCKED_LOG="$(cd "$(dirname "$0")" && pwd)/blocked.log"
 BRIDGE="pesbuk-br"
 IP=$1
 
@@ -18,7 +18,7 @@ if [ -z "$IP" ]; then
     exit 1
 fi
 
-# Validasi format IP sederhana
+# Validasi format IP
 if ! echo "$IP" | grep -qP '^\d+\.\d+\.\d+\.\d+$'; then
     echo "[ERROR] Format IP tidak valid: $IP"
     exit 1
@@ -26,13 +26,19 @@ fi
 
 # Cek apakah sudah diblokir
 if iptables -L FORWARD -n 2>/dev/null | grep -q "$IP"; then
-    echo "[INFO] IP $IP sudah diblokir sebelumnya."
-    exit 0
+    echo "[INFO] IP $IP sudah diblokir di FORWARD."
+else
+    iptables -I FORWARD -i "$BRIDGE" -s "$IP" -j DROP
+    echo "[OK] FORWARD rule ditambahkan untuk $IP"
 fi
 
-# Blokir IP
-iptables -I FORWARD -i "$BRIDGE" -s "$IP" -j DROP
+if iptables -L INPUT -n 2>/dev/null | grep -q "$IP"; then
+    echo "[INFO] IP $IP sudah diblokir di INPUT."
+else
+    iptables -I INPUT -i "$BRIDGE" -s "$IP" -j DROP
+    echo "[OK] INPUT rule ditambahkan untuk $IP"
+fi
 
 TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
-echo "[$TIMESTAMP] [MANUAL BLOCK] $IP diblokir."
+echo "[$TIMESTAMP] [MANUAL BLOCK] $IP diblokir (FORWARD + INPUT)."
 echo "[$TIMESTAMP] MANUAL BLOCK $IP" >> "$BLOCKED_LOG"

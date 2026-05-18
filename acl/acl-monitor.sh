@@ -9,8 +9,8 @@
 # Cara pakai: sudo bash acl/acl-monitor.sh
 # ============================================================
 
-ALERT_LOG="$(dirname "$0")/../snort/logs/alert.log"
-BLOCKED_LOG="$(dirname "$0")/blocked.log"
+ALERT_LOG="$(cd "$(dirname "$0")" && pwd)/../snort/logs/alert.log"
+BLOCKED_LOG="$(cd "$(dirname "$0")" && pwd)/blocked.log"
 BRIDGE="pesbuk-br"
 
 # Keyword yang dianggap serangan berbahaya
@@ -22,17 +22,39 @@ echo " Memantau: $ALERT_LOG"
 echo " Bridge  : $BRIDGE"
 echo " Log     : $BLOCKED_LOG"
 echo "=============================================="
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] ACL Monitor aktif..."
+
+# ------------------------------------------------------------
+# PENTING: Hapus semua rule lama untuk pesbuk-br
+# IP container bisa berubah setiap docker compose up/down
+# Rule lama bisa memblokir container yang SALAH
+# ------------------------------------------------------------
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] Membersihkan rule iptables lama untuk $BRIDGE..."
+
+# Hapus dari chain FORWARD
+iptables-save | grep -- "-A FORWARD" | grep "$BRIDGE" | grep "DROP" | \
+    sed 's/-A FORWARD/-D FORWARD/' | while read -r rule; do
+    eval iptables "$rule" 2>/dev/null && echo "  [FLUSH FORWARD] $rule"
+done
+
+# Hapus dari chain INPUT
+iptables-save | grep -- "-A INPUT" | grep "$BRIDGE" | grep "DROP" | \
+    sed 's/-A INPUT/-D INPUT/' | while read -r rule; do
+    eval iptables "$rule" 2>/dev/null && echo "  [FLUSH INPUT] $rule"
+done
+
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] Rules lama dibersihkan. ACL Monitor aktif..."
 echo ""
 
-# Pastikan file log ada
+# Pastikan file alert ada
 if [ ! -f "$ALERT_LOG" ]; then
     echo "[ERROR] File alert tidak ditemukan: $ALERT_LOG"
     echo "        Pastikan container Snort sudah berjalan."
     exit 1
 fi
 
+# ------------------------------------------------------------
 # Pantau alert log secara real-time
+# ------------------------------------------------------------
 tail -n 0 -f "$ALERT_LOG" | while read -r line; do
 
     # Cek apakah baris mengandung keyword serangan
@@ -45,21 +67,24 @@ tail -n 0 -f "$ALERT_LOG" | while read -r line; do
             continue
         fi
 
-        # Cek apakah IP sudah diblokir sebelumnya
-        if iptables -L FORWARD -n 2>/dev/null | grep -q "$SRC_IP"; then
+        # Cek apakah IP sudah diblokir di FORWARD
+        ALREADY_BLOCKED=$(iptables -L FORWARD -n 2>/dev/null | grep "$SRC_IP" | grep -c "DROP")
+
+        if [ "$ALREADY_BLOCKED" -gt 0 ]; then
             echo "[$(date '+%Y-%m-%d %H:%M:%S')] [SKIP] $SRC_IP sudah diblokir sebelumnya."
             continue
         fi
 
-        # Tambahkan iptables rule untuk memblokir IP di bridge pesbuk-br
+        # Blokir di FORWARD (traffic antar container)
         iptables -I FORWARD -i "$BRIDGE" -s "$SRC_IP" -j DROP
+
+        # Blokir di INPUT (traffic dari container ke host/172.x.x.1)
+        iptables -I INPUT -i "$BRIDGE" -s "$SRC_IP" -j DROP
 
         TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
         ALERT_MSG=$(echo "$line" | grep -oP '\[\*\*\] \[.*?\] .+? \[\*\*\]' | head -1)
 
         echo "[$TIMESTAMP] [BLOCKED] $SRC_IP | $ALERT_MSG"
-
-        # Simpan ke log pemblokiran
         echo "[$TIMESTAMP] BLOCKED $SRC_IP | $ALERT_MSG" >> "$BLOCKED_LOG"
     fi
 done

@@ -52,8 +52,8 @@ services:
 
   # ========================
   # Container 4: User / Attacker
-  # Ubuntu dengan tools serangan: curl, hydra, sqlmap
-  # Cara pakai: docker exec -it pesbuk-user bash
+  # Ubuntu dengan tools serangan: curl, hydra, sqlmap, nmap
+  # Cara pakai: docker exec -it pesbuk-user_101032330051 bash
   # ========================
   user:
     build:
@@ -64,6 +64,8 @@ services:
       - pesbuk-network
     stdin_open: true
     tty: true
+    cap_add:
+      - NET_RAW               # izin kirim raw packet (dibutuhkan nmap SYN/XMAS/NULL/FIN scan)
 
 networks:
   pesbuk-network:

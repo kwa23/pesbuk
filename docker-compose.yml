@@ -27,10 +27,15 @@ services:
       - NET_ADMIN               # izin monitor jaringan
       - NET_RAW                 # izin baca raw packet
     volumes:
-      - ./snort/logs:/var/log/snort   # log alert tersimpan di host
+      - ./snort/logs:/var/log/snort                                              # log alert tersimpan di host
+      - ./snort/snort.conf:/etc/snort/snort.conf:ro                              # mount dari host → switch tanpa rebuild
+      - ./snort/classification.config:/etc/snort/classification.config:ro        # wajib untuk community rules
+      - ./snort/rules/local.rules:/etc/snort/rules/local.rules:ro                # local rules
+      - ./community-rules/community.rules:/etc/snort/rules/community.rules:ro    # community rules dari Sourcefire
     depends_on:
       - app
       - nginx
+
 
   # ========================
   # Container 3: Nginx (HTTPS + reverse proxy)

@@ -2,6 +2,7 @@ services:
 
   # ========================
   # Container 1: Web Server + Database
+  # IP Static: 172.20.0.2
   # ========================
   app:
     build:
@@ -11,11 +12,13 @@ services:
     volumes:
       - pesbuk_data:/app/data
     networks:
-      - pesbuk-network
+      pesbuk-network:
+        ipv4_address: 172.20.0.2   # IP tetap untuk web server
 
   # ========================
   # Container 2: Snort IDS
   # Pakai network_mode: host agar bisa monitor bridge pesbuk-br dari sisi host
+  # Tidak mendapat IP dari pesbuk-network (menggunakan IP host langsung)
   # ========================
   snort:
     build:
@@ -36,9 +39,9 @@ services:
       - app
       - nginx
 
-
   # ========================
   # Container 3: Nginx (HTTPS + reverse proxy)
+  # IP Static: 172.20.0.3
   # ========================
   nginx:
     image: nginx:alpine
@@ -53,10 +56,12 @@ services:
     depends_on:
       - app
     networks:
-      - pesbuk-network
+      pesbuk-network:
+        ipv4_address: 172.20.0.3   # IP tetap untuk nginx
 
   # ========================
   # Container 4: User / Attacker
+  # IP Static: 172.20.0.4
   # Ubuntu dengan tools serangan: curl, hydra, sqlmap, nmap
   # Cara pakai: docker exec -it pesbuk-user_101032330051 bash
   # ========================
@@ -66,7 +71,8 @@ services:
       dockerfile: Dockerfile.user
     container_name: pesbuk-user_101032330051
     networks:
-      - pesbuk-network
+      pesbuk-network:
+        ipv4_address: 172.20.0.4   # IP tetap untuk container attacker
     stdin_open: true
     tty: true
     cap_add:
@@ -77,6 +83,10 @@ networks:
     driver: bridge
     driver_opts:
       com.docker.network.bridge.name: pesbuk-br   # nama bridge TETAP agar Snort bisa monitor
+    ipam:                      # IP Address Management — konfigurasi IP static
+      config:
+        - subnet: 172.20.0.0/24   # rentang IP jaringan Docker
+          gateway: 172.20.0.1     # IP host di sisi bridge (pesbuk-br)
 
 volumes:
   pesbuk_data:

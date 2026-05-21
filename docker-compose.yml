@@ -13,7 +13,7 @@ services:
       - pesbuk_data:/app/data
     networks:
       pesbuk-network:
-        ipv4_address: 10.10.10.2   # IP tetap untuk web server
+        ipv4_address: 10.77.77.2   # IP tetap untuk web server
 
   # ========================
   # Container 2: Snort IDS
@@ -57,7 +57,7 @@ services:
       - app
     networks:
       pesbuk-network:
-        ipv4_address: 10.10.10.3   # IP tetap untuk nginx
+        ipv4_address: 10.77.77.3   # IP tetap untuk nginx
 
   # ========================
   # Container 4: User / Attacker
@@ -72,7 +72,7 @@ services:
     container_name: pesbuk-user_101032330051
     networks:
       pesbuk-network:
-        ipv4_address: 10.10.10.4   # IP tetap untuk container attacker
+        ipv4_address: 10.77.77.4   # IP tetap untuk container attacker
     stdin_open: true
     tty: true
     cap_add:
@@ -85,8 +85,8 @@ networks:
       com.docker.network.bridge.name: pesbuk-br   # nama bridge TETAP agar Snort bisa monitor
     ipam:                      # IP Address Management — konfigurasi IP static
       config:
-        - subnet: 10.10.10.0/24   # rentang IP jaringan Docker (hindari konflik 172.x)
-          gateway: 10.10.10.1     # IP host di sisi bridge (pesbuk-br)
+        - subnet: 10.77.77.0/24   # rentang IP jaringan Docker (hindari konflik 172.x)
+          gateway: 10.77.77.1     # IP host di sisi bridge (pesbuk-br)
 
 volumes:
   pesbuk_data:
